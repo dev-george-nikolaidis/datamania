@@ -3,10 +3,10 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
-import db from "./config/db";
-import { errorHandler } from "./middlewares/error-handler";
-import { notFound } from "./middlewares/not-found";
-import api from "./index-routes";
+import { mongooseDB } from "./v1/config/db";
+import { errorHandler } from "./v1/middlewares/error-handler";
+import { notFound } from "./v1/middlewares/not-found";
+import api from "./v1/index-routes";
 
 dotenv.config();
 
@@ -21,7 +21,7 @@ app.use(
 );
 
 app.use(express.json());
-db();
+mongooseDB();
 
 app.use("/api/v1", api);
 

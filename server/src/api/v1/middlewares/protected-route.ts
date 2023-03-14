@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { User } from "../users/users.model";
+import { pool } from "../config/db";
 
 interface JwtPayload {
-	_id: string;
+	id: string;
 }
 
 export const protectedRoute = async (req: Request<any>, res: Response, next: NextFunction) => {
@@ -15,12 +15,11 @@ export const protectedRoute = async (req: Request<any>, res: Response, next: Nex
 
 			const jwtSecret = process.env.JWT_SECRET as string;
 			// Verify token
-			const { _id } = jwt.verify(token, jwtSecret) as JwtPayload;
+			const { id } = jwt.verify(token, jwtSecret) as JwtPayload;
 
 			// Get user from the token
-			// const user = await User.findById(decoded.id).select("-password");
-			const user = await User.findOne({ _id, "tokens.token": token });
-
+			const query = "SELECT * FROM users WHERE id = $1";
+			const user = await pool.query(query, [id]);
 			next();
 		}
 	} catch (error) {

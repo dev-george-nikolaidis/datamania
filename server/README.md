@@ -1,4 +1,4 @@
-# Datamania Express API with Typescript
+# Datamania Express SQL API with Typescript
 
 Includes API Server utilities:
 
@@ -26,12 +26,6 @@ Development utilities:
 
 ```
 npm install
-```
-
-## Lint
-
-```
-npm run lint
 ```
 
 ## Development

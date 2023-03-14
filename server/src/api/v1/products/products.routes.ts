@@ -6,13 +6,14 @@ import * as productController from "./products.controller";
 
 const router = Router();
 
-// router.get("/", protectedRoute, (req: Request, res: Response) => {
-// 	res.send("Get products");
-// });
-
-router.get("/", (req: Request, res: Response) => {
+// Auth protected route example;
+router.get("/", protectedRoute, (req: Request, res: Response) => {
 	res.send("Get products");
 });
+
+// router.get("/", (req: Request, res: Response) => {
+// 	res.send("Get products");
+// });
 
 router.get("/:categoryId", productController.getProductsByCategory);
 

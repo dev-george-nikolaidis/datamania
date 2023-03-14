@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { loginUserPayload, registerUserPayload } from "./users.interfaces";
-import { User } from "./users.model";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { pool } from "../config/db";
 
 // @desc    get  user
 // @route   GET /api/v1/users/login
@@ -12,13 +12,15 @@ export async function loginUser(req: Request<{}, never, loginUserPayload>, res: 
 
 	try {
 		// Check for user email
-		const user = await User.findOne({ email: email });
-		if (user && (await bcrypt.compare(password, user.password))) {
+		const query = "SELECT * FROM users WHERE email = $1";
+		const user = await pool.query(query, [email]);
+		console.log(user.rows[0].password);
+		if (user && (await bcrypt.compare(password, user.rows[0].password))) {
 			res.json({
-				_id: user.id,
-				name: user.name,
-				email: user.email,
-				token: generateToken(user._id),
+				id: user.rows[0].id,
+				username: user.rows[0].username,
+				email: user.rows[0].email,
+				token: generateToken(user.rows[0].id),
 			});
 		} else {
 			res.status(400).send("Invalid credentials");
@@ -32,25 +34,19 @@ export async function loginUser(req: Request<{}, never, loginUserPayload>, res: 
 // @route   POST /api/v1/users/register
 // @access  Private
 export async function registerUser(req: Request<{}, never, registerUserPayload>, res: Response, next: NextFunction) {
-	const { name, email, password } = req.body;
-	try {
-		// check if the user exists
-		const userExists = await User.findOne({ email: email });
-		if (userExists) {
-			res.status(401).send("User already exists");
-		}
+	const { username, email, password } = req.body;
 
+	try {
 		// Hash password
 		const salt = await bcrypt.genSalt(10);
 		const hashedPassword = await bcrypt.hash(password, salt);
-		const self = await User.create({
-			name: name,
-			email: email,
-			password: hashedPassword,
-		});
 
-		res.status(200).json(self);
+		const query = `INSERT INTO users(username,email,password) VALUES($1,$2,$3) RETURNING *`;
+		const values = [username, email, hashedPassword];
+		const self = await pool.query(query, values);
+		res.status(200).json(self.rows[0]);
 	} catch (error) {
+		console.log(error);
 		next(error);
 	}
 }

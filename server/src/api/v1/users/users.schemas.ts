@@ -2,9 +2,9 @@ import { z } from "zod";
 
 export const userRegisterSchema = z.object({
 	body: z.object({
-		name: z
+		username: z
 			.string({
-				required_error: "Full name is required",
+				required_error: "username is required",
 			})
 			.min(1),
 		email: z

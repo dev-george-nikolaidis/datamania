@@ -20,7 +20,7 @@ export async function loginUser(req: Request<{}, never, loginUserPayload>, res: 
 				id: user.rows[0].id,
 				username: user.rows[0].username,
 				email: user.rows[0].email,
-				token: generateToken(user.rows[0].id),
+				token: _generateToken(user.rows[0].id),
 			});
 		} else {
 			res.status(400).send("Invalid credentials");
@@ -32,7 +32,7 @@ export async function loginUser(req: Request<{}, never, loginUserPayload>, res: 
 
 // @desc    create  user
 // @route   POST /api/v1/users/register
-// @access  Private
+// @access  Public
 export async function registerUser(req: Request<{}, never, registerUserPayload>, res: Response, next: NextFunction) {
 	const { username, email, password } = req.body;
 
@@ -52,7 +52,7 @@ export async function registerUser(req: Request<{}, never, registerUserPayload>,
 }
 
 // Generate JWT
-const generateToken = (id: any) => {
+const _generateToken = (id: any) => {
 	const jwtSecret = process.env.JWT_SECRET as string;
 	const jwtExpTime = process.env.JWT_TOKEN_EXPIRATION || 1;
 	return jwt.sign({ id }, jwtSecret, {

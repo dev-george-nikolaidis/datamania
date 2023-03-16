@@ -11,14 +11,15 @@ export const protectedRoute = async (req: Request<any>, res: Response, next: Nex
 	try {
 		if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
 			// Get token from header
-			token = req.headers.authorization.split(" ")[1];
 
+			token = req.headers.authorization.split(" ")[1];
 			const jwtSecret = process.env.JWT_SECRET as string;
 			// Verify token
 			const { id } = jwt.verify(token, jwtSecret) as JwtPayload;
 
+			// !!!!!!!!! the Where column user_id must much the  id of the database.
 			// Get user from the token
-			const query = "SELECT * FROM users WHERE id = $1";
+			const query = "SELECT * FROM users WHERE user_id = $1";
 			const user = await pool.query(query, [id]);
 			next();
 		}
